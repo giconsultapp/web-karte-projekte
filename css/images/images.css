@@ -1,0 +1,78 @@
+/* Grid layout styles */
+
+.category-menu {
+    display: flex;
+    justify-content: center;
+    max-width: 1000px;
+    margin: 5px auto; /* Adjust top margin as needed */
+}
+
+.category-button {
+    background-color: transparent;
+    font-family: "Manrope", Sans-serif;
+    border: none;
+    font-size: 18px;
+    font-weight: 600;
+    cursor: pointer;
+    text-transform: none;
+    line-height: 1em;
+    letter-spacing: -0.5px;
+    color: black;
+}
+
+
+.category-button.selected {
+    color: red; /* Color for the selected category */
+}
+
+
+.image-grid {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center; /* Horizontally center the items */
+    align-items: flex-start; /* Align items to the start vertically */
+    max-width: 1000px; /* Set a maximum width for the grid */
+    margin: 0 auto; /* Center the grid horizontally */
+}
+
+/* Individual image item styles */
+.image-item {
+    cursor: pointer;
+    position: relative;
+    margin: 10px; /* Adjust margin to control spacing between images */
+    width: calc(33.33% - 20px); /* Set a width for each image item */
+    border-radius: 2%;
+    overflow: hidden;
+}
+
+.image-item img {
+    display: block;
+    width: 100%; /* Set images to occupy full width of their container */
+    height: 230px; /* Set a fixed height for the images (twice as big) */
+    max-height: 350px; /* Set a maximum height for the images (twice as big) */
+    object-fit: cover; /* Fill the container, maintaining aspect ratio */
+}
+
+.image-item .overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(255, 0, 0, 0.575);
+    color: white;
+    font-size: 20px;
+    display: none; 
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    opacity: 0; 
+    transition: opacity 0.3s ease;
+    font-family: -apple-system,BlinkMacSystemFont,Segoe UI,Roboto,Helvetica Neue,Arial,Noto Sans,sans-serif,Apple Color Emoji,Segoe UI Emoji,Segoe UI Symbol,Noto Color Emoji;
+    font-weight: bold; 
+}
+
+.image-item:hover .overlay {
+    display: flex; 
+    opacity: 1; 
+}

@@ -1,0 +1,8 @@
+.red-marker {
+  background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="24" height="41" viewBox="0 0 24 41"><path fill="#ffffff" stroke="#ff0000" stroke-width="2" d="M12 0C5.375 0 0 5.373 0 12c0 11.214 12 29 12 29s12-17.786 12-29c0-6.627-5.373-12-12-12zm0 17.5c-2.481 0-4.5-2.019-4.5-4.5s2.019-4.5 4.5-4.5 4.5 2.019 4.5 4.5-2.019 4.5-4.5 4.5z"/></svg>');
+  background-size: contain;
+  background-repeat: no-repeat;
+  background-position: center bottom;
+  width: 24px;
+  height: 41px;
+}

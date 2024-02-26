@@ -1,0 +1,528 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta
+      name="viewport"
+      content="initial-scale=1,user-scalable=no,maximum-scale=1,width=device-width"
+    />
+    <meta name="mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <link rel="stylesheet" href="css/leaflet.css" />
+    <link rel="stylesheet" href="css/qgis2web.css" />
+    <link rel="stylesheet" href="css/fontawesome-all.min.css" />
+    <link rel="stylesheet" href="css/MarkerCluster.css" />
+    <link rel="stylesheet" href="css/MarkerCluster.Default.css" />
+    <link rel="stylesheet" href="css/markers.css" />
+    <link rel="stylesheet" href="css/leaflet-search.css" />
+    <link rel="stylesheet" href="css/leaflet-control-geocoder.Geocoder.css" />
+    <link rel="stylesheet" href="css/images/images.css" />
+    <style>
+      html,
+      body,
+      #map {
+        width: 100%;
+        height: 100%;
+        padding: 0;
+        margin: 0;
+      }
+    </style>
+    <title></title>
+  </head>
+  <body>
+    <div id="category-menu">
+      <div class="category-menu">
+      <button class="category-button" data-category="alle">Alle</button>
+      <button class="category-button" data-category="Bahnhof">Bahnhof</button>
+      <button class="category-button" data-category="Streckennetz">Streckennetz</button>
+      <button class="category-button" data-category="Tunnel">Tunnel</button>
+    </div>
+  </div>
+    <div id="image-gallery">
+      <div class="image-grid"></div>
+    </div>
+    <div id="map"></div>
+    <script src="images-gallery.js"></script>
+    <script src="js/qgis2web_expressions.js"></script>
+    <script src="js/leaflet.js"></script>
+    <script src="js/leaflet.rotatedMarker.js"></script>
+    <script src="js/leaflet.pattern.js"></script>
+    <script src="js/leaflet-hash.js"></script>
+    <script src="js/Autolinker.min.js"></script>
+    <script src="js/rbush.min.js"></script>
+    <script src="js/labelgun.min.js"></script>
+    <script src="js/labels.js"></script>
+    <script src="js/leaflet-control-geocoder.Geocoder.js"></script>
+    <script src="js/leaflet.markercluster.js"></script>
+    <script src="js/leaflet-search.js"></script>
+    <script src="data/vg2500_bld_2.js"></script>
+    <script src="data/Projekt_linie.geojson"></script>
+    <script src="data/Projekt_punkt.geojson"></script>
+    <script src="plugins/leaflet.snogylop.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/axios/1.2.1/axios.min.js"></script>
+    <script src="js/code/popUps.js"></script>
+    <script src="js/code/OSM.js"></script>
+    <script src="js/code/highlightmap.js"></script>
+    <script src="js/code/importData.js"></script>
+    <script type="commonjs" src="../databasepg.js"></script>
+
+    <script>
+
+
+
+    // Highlight the layer
+      var highlightLayer;
+      function highlightFeature(e) {
+        highlightLayer = e.target;
+        if (e.target.feature.geometry.type === "LineString") {
+          highlightLayer.setStyle({
+            color: "#ffff00",
+            opacity: 1,
+            fillOpacity: 0.8,
+            weight: 5,
+          });
+        } else {
+          highlightLayer.setStyle({
+            weight: 10,
+            color: "#ff7a7a",
+            dashArray: "",
+            opacity: 0.5,
+            //fillOpacity: 0.1
+          });
+        }
+      }
+      var map = L.map("map", {
+        zoomControl: true,
+        maxZoom: 24,
+        minZoom: 6,
+      }).fitBounds([
+        [37.51641700657241, 4.214943073930248],
+        [60.89326383816825, 16.90230580792365],
+      ]);
+
+
+      var hash = new L.Hash(map);
+      map.attributionControl.setPrefix(
+        '<a href="https://github.com/tomchadwin/qgis2web" target="_blank">qgis2web</a> &middot; <a href="https://leafletjs.com" title="A JS library for interactive maps">Leaflet</a> &middot; <a href="https://qgis.org">QGIS</a>'
+      );
+      var autolinker = new Autolinker({
+        truncate: { length: 30, location: "smart" },
+      });
+      var bounds_group = new L.featureGroup([]);
+      function setBounds() {}
+        map.createPane("pane_OpenStreetMap_0");
+/*         map.getPane("pane_OpenStreetMap_0").style.zIndex = 400; */
+
+        layer_OpenStreetMap_0;
+        map.addLayer(layer_OpenStreetMap_0);
+        map.createPane("pane_OpenRailwayMap_1");
+/*         map.getPane("pane_OpenRailwayMap_1").style.zIndex = 401; */
+      var layer_OpenRailwayMap_1 = L.tileLayer(
+        "https://a.tiles.openrailwaymap.org/standard/{z}/{x}/{y}.png",
+        {
+          pane: "pane_OpenRailwayMap_1",
+          opacity: 1.0,
+          attribution: "",
+          minZoom: 6,
+          maxZoom: 24,
+          minNativeZoom: 0,
+          maxNativeZoom: 18,
+          center: [51.351, 10.454],
+          bounds: null,
+          lines: null,
+          polylines: null,
+          polyline_options: {
+            opacity: 0.75,
+            opacity2: 0.75,
+            opacity0: 0,
+            opacity_over: 0.1,
+            weight: 3,
+            weight3: 3,
+            weight20: 20,
+            color: "#003472",
+            color_red: "#F01414",
+          },
+          polygon_options: {
+            color: "#f39200",
+            weight: 1,
+          },
+          map: null,
+          allprojects: null,
+          categories: null,
+          selectedCategories: [],
+          latestprojects: null,
+          showLatest: !0,
+          searchword: "",
+          keywords: [],
+          projectslist: null,
+          allprojectslist: null,
+          showProjectsList: !0,
+          ptHeaders: [
+            {
+              text: "Bauprojekt",
+              align: "start",
+              value: "shorttitle",
+            },
+          ],
+          in_update: 0,
+          iconSize: 42,
+          clusterOptions: {
+            showCoverageOnHover: !1,
+          },
+          geojson: null,
+          optionsStyle: {
+            color: "#aaa",
+            fillOpacity: 0.6,
+          },
+          popupOptions: {
+            class: "projectPopup",
+          },
+          overlay: !0,
+          isAutocompleteLoading: !1,
+          loadKeywords: null,
+          awaitingSearch: !1,
+          currentView: "map",
+          filterClass: "",
+          slickSettings: {
+            dots: !0,
+            centerMode: !0,
+            centerPadding: "20px",
+            focusOnSelect: !1,
+            infinite: !0,
+            initialSlide: 0,
+            slidesToShow: 1,
+            slidesToScroll: 1,
+            variableWidth: !0,
+            speed: 400,
+            autoplaySpeed: 3e3,
+            arrows: !0,
+            autoplay: !1,
+            touchMove: !0,
+          },
+          slider: !1,
+          selectedItem: null,
+          beforeTxt: 1,
+        }
+      );
+      layer_OpenRailwayMap_1;
+      map.addLayer(layer_OpenRailwayMap_1);
+
+      function style_vg2500_bld_2_0() {
+        return {
+          pane: "pane_vg2500_bld_2",
+          opacity: 1,
+          color: "rgba(35,35,35,1.0)",
+          dashArray: "",
+          lineCap: "butt",
+          lineJoin: "miter",
+          weight: 1.0,
+          fill: true,
+          fillOpacity: 1,
+          fillColor: "rgba(101,101,101,0.5)",
+          interactive: false,
+        };
+      }
+      map.createPane("pane_vg2500_bld_2");
+      map.getPane("pane_vg2500_bld_2").style.zIndex = 402;
+      map.getPane("pane_vg2500_bld_2").style["mix-blend-mode"] = "normal";
+      var layer_vg2500_bld_2 = new L.geoJson(json_vg2500_bld_2, {
+        attribution: "",
+        invert: true,
+        interactive: false,
+        dataVar: "json_vg2500_bld_2",
+        layerName: "layer_vg2500_bld_2",
+        pane: "pane_vg2500_bld_2",
+        onEachFeature: pop_vg2500_bld_2,
+        style: style_vg2500_bld_2_0,
+      });
+      bounds_group.addLayer(layer_vg2500_bld_2);
+
+      map.addLayer(layer_vg2500_bld_2);
+      function style_Projekt_aktuell_linie_3_0() {
+        return {
+          pane: "pane_Projekt_aktuell_linie_3",
+          opacity: 1,
+          color: "rgba(255,0,0,1.0)",
+          dashArray: "",
+          lineCap: "square",
+          lineJoin: "bevel",
+          weight: 6.0,
+          fillOpacity: 1,
+          interactive: true,
+        };
+      }
+
+      map.createPane("pane_Projekt_aktuell_linie_3");
+      map.getPane("pane_Projekt_aktuell_linie_3").style.zIndex = 403;
+      map.getPane("pane_Projekt_aktuell_linie_3").style["mix-blend-mode"] =
+        "normal";
+
+      var layer_Projekt_linie = new L.geoJson(
+        json_Projekt_linie,
+        {
+          attribution: "",
+          interactive: true,
+          dataVar: "json_Projekt_linie",
+          layerName: "layer_Projekt_linie",
+          pane: "pane_Projekt_aktuell_linie_3",
+          onEachFeature: pop_Projekt_aktuell_linie_3,
+          style: style_Projekt_aktuell_linie_3_0,
+        }
+      );
+      bounds_group.addLayer(layer_Projekt_linie);
+      map.addLayer(layer_Projekt_linie);
+
+      function calcMiddleLatLng(map, latlng1, latlng2) {
+        // calculate the middle coordinates between two markers
+        const p1 = map.project(latlng1);
+        const p2 = map.project(latlng2);
+        console.log(p1);
+        return map.unproject(p1._add(p2)._divideBy(2));
+      }
+      var middleMarkersGroup = L.layerGroup();
+
+      function createMiddleMarkers() {
+        json_Projekt_linie.features.forEach((feature) => {
+          const geometry = feature.geometry;
+
+          if (geometry.type === "MultiLineString") {
+            const lines = geometry.coordinates; // Get all the lines
+            const totalPoints = lines.reduce(
+              (acc, line) => acc + line.length,
+              0
+            );
+            const middleIndex = Math.floor(totalPoints / 2);
+
+            let count = 0;
+            for (let i = 0; i < lines.length; i++) {
+              for (let j = 0; j < lines[i].length - 1; j++) {
+                if (count === middleIndex) {
+                  const left = lines[i][j];
+                  const right = lines[i][j + 1];
+
+                  const newLatLng = {
+                    lat: (left[1] + right[1]) / 2,
+                    lng: (left[0] + right[0]) / 2,
+                  };
+
+                  const redMarkerIcon = L.divIcon({
+                    className: "red-marker",
+                    iconAnchor: [12, 35],
+                    html: '<svg xmlns="http://www.w3.org/2000/svg" width="24" height="41" viewBox="0 0 18 55"> \
+                              <path fill="#ffffff" stroke="#ff0000" stroke-width="2" d="M12 0C5.375 0 0 5.373 0 12c0 11.214 12 29 12 29s12-17.786 12-29c0-6.627-5.373-12-12-12zm0 17.5c-2.481 0-4.5-2.019-4.5-4.5s2.019-4.5 4.5-4.5 4.5 2.019 4.5 4.5-2.019 4.5-4.5 4.5z"/>\
+                              </svg>',
+                  });
+
+                  const marker = L.marker(newLatLng, {
+                    icon: redMarkerIcon,
+                  }).addTo(map);
+                  pop_Projekt_aktuell_linie_3(feature, marker);
+                  middleMarkersGroup.addLayer(marker);
+                  return; // Stop after placing the middle marker
+                }
+                count++;
+              }
+            }
+
+            console.error(
+              "Could not find middle point for feature:",
+              feature.properties.id
+            );
+          } else {
+            console.error("Unsupported geometry type:", geometry.type);
+          }
+        });
+      }
+
+      // Call createMiddleMarkers function
+      createMiddleMarkers();
+
+      function removeMiddleMarkers() {
+    // Remove all markers from the middleMarkersGroup
+        middleMarkersGroup.eachLayer(function(layer) {
+        map.removeLayer(layer);
+    });
+}
+
+    var mergedLayer = new L.geoJson(
+      [json_Projekt_linie, json_Projekt_punkt],
+      {
+        attribution: "",  
+        interactive: false,
+        layerName: "mergedLayer",
+      }
+    );
+
+   mergedLayer.eachLayer((layer) => {
+      if (layer.feature.geometry.type === "Point") {
+       layer.setOpacity(0); // Hide points
+    } 
+
+}); 
+  //bounds_group.addLayer(mergedLayer);
+  map.addLayer(mergedLayer);
+
+      function style_Projekt_punkt() {
+        return {
+          pane: "pane_Projekt_punkt",
+          radius: 8.0,
+          stroke: false,
+          fill: true,
+          fillOpacity: 1,
+          fillColor: "rgba(219,30,42,1.0)",
+          interactive: true,
+        };
+      }
+      map.createPane("pane_Projekt_punkt");
+      map.getPane("pane_Projekt_punkt").style.zIndex = 404;
+      map.getPane("pane_Projekt_punkt").style["mix-blend-mode"] =
+        "normal";
+      var layer_Projekt_punkt = new L.geoJson(
+        json_Projekt_punkt,
+        {
+          attribution: "",
+          interactive: true,
+          dataVar: "json_Projekt_punkt",
+          layerName: "layer_Projekt_punkt",
+          pane: "pane_Projekt_punkt",
+          onEachFeature: pop_Projekt_punkt,
+          pointToLayer: function (feature, latlng) {
+            var context = {
+              feature: feature,
+              variables: {},
+            };
+            return L.circleMarker(
+              latlng,
+              style_Projekt_punkt(feature)
+            );
+          },
+        }
+      );
+      var cluster_Projekt_punkt = new L.MarkerClusterGroup({
+        showCoverageOnHover: false,
+        spiderfyDistanceMultiplier: 2,
+      });
+      cluster_Projekt_punkt.addLayer(layer_Projekt_punkt);
+
+      bounds_group.addLayer(layer_Projekt_punkt);
+      cluster_Projekt_punkt.addTo(map);
+
+      var osmGeocoder = new L.Control.Geocoder({
+        collapsed: true,
+        position: "topleft",
+        text: "Search",
+        title: "Testing",
+      }).addTo(map);
+      document.getElementsByClassName( 
+        "leaflet-control-geocoder-icon"
+      )[0].className += " fa fa-search";
+      document.getElementsByClassName(
+        "leaflet-control-geocoder-icon"
+      )[0].title += "Search for a place";
+      var baseMaps = {};
+      L.control
+        .layers(baseMaps, {
+          '<img src="legend/Projekt_aktuell_punkt_4.png" /> Projekt_aktuell_punkt':
+            cluster_Projekt_punkt,
+          '<img src="legend/Projekt_aktuell_linie_3.png" /> Projekt_aktuell_linie':
+            layer_Projekt_linie,
+          '<img src="legend/vg2500_bld_2.png" /> vg2500_bld':
+            layer_vg2500_bld_2,
+          OpenRailwayMap: layer_OpenRailwayMap_1,
+          OpenStreetMap: layer_OpenStreetMap_0,
+        })
+        .addTo(map);
+      setBounds();
+      map.addControl(
+        new L.Control.Search({
+          layer: mergedLayer,
+          initial: false,
+          hideMarkerOnCollapse: true,
+          moveToLocation: (coords, title, map) => map.setView(coords, 10),
+          propertyName: "Projektbezeichnung",
+        })
+      );
+      document.getElementsByClassName("search-button")[0].className +=
+        " fa fa-binoculars";
+
+  document.querySelectorAll('.category-button').forEach(function(button) {
+    button.addEventListener('click', function() {
+        // Remove the 'selected' class from all buttons
+        document.querySelectorAll('.category-button').forEach(function(btn) {
+            btn.classList.remove('selected');
+        });
+        // Add the 'selected' class to the clicked button
+        button.classList.add('selected');
+        
+        // Retrieve the category associated with the clicked button
+        const category = button.dataset.category;
+        
+        // Filter features based on the category
+        filterFeaturesByCategory(category);
+    });
+});
+
+function filterFeaturesByCategory(category) {
+    console.log("Filtering features by category:", category);
+
+    map.eachLayer(function(layer) {
+        if (layer === layer_OpenRailwayMap_1 && layer === layer_OpenStreetMap_0 && layer === layer_vg2500_bld_2 ) {
+            map.removeLayer(layer);
+        }
+    });
+    if (category === "alle") {
+        map.addLayer(layer_Projekt_linie);
+        map.addLayer(cluster_Projekt_punkt);
+        createMiddleMarkers();
+        map.fitBounds(bounds_group.getBounds());
+        return;
+    }
+    map.fitBounds(bounds_group.getBounds());
+    
+    // Filter features from layer_Projekt_linie
+    layer_Projekt_linie.eachLayer(function(layer) {
+        const featureCategory = layer.feature.properties["Kategorie"];
+        if (featureCategory === category) {
+            const style = {
+                color: 'red', 
+                weight: 6,
+                opacity: 1,
+            };
+            layer.setStyle(style);
+            map.addLayer(layer);
+            console.log(layer)
+        } else {
+            map.removeLayer(layer); // Remove layers that don't match the selected category
+        }
+    });
+
+    // Filter features from layer_Projekt_punkt
+    layer_Projekt_punkt.eachLayer(function(layer) {
+        const featureCategory = layer.feature.properties["Kategorie"];
+        if (featureCategory === category) {
+            const style = {
+                color: 'red', 
+                weight: 10,
+                opacity: 1,
+            };
+            layer.setStyle(style);
+            map.addLayer(layer);
+        } else {
+            map.removeLayer(layer); // Remove layers that don't match the selected category
+        }
+    });
+
+    if (category !== "alle") {
+        map.removeLayer(cluster_Projekt_punkt);
+        map.removeLayer(layer_Projekt_punkt);
+        map.removeLayer(layer_Projekt_linie);
+        removeMiddleMarkers();
+    }
+}
+
+   
+    
+    </script>
+  </body>
+</html>
