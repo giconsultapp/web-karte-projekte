@@ -21,7 +21,7 @@ function filterFeaturesByCategory(category) {
     map.addLayer(layer_Projekt_linie);
     map.addLayer(cluster_Projekt_punkt);
     createMiddleMarkers(json_Projekt_linie);
-  } else if (category === "Streckennetz") {
+  } else {
     layer_Projekt_linie.eachLayer(function (layer) {
       if (layer.feature && layer.feature.properties["Kategorie"] === category) {
         layer.addTo(map);
@@ -33,13 +33,7 @@ function filterFeaturesByCategory(category) {
         layer.addTo(map);
       }
     });
-  } else if (category === "Bahnhof") {
-    layer_Projekt_punkt.eachLayer(function (layer) {
-      if (layer.feature && layer.feature.properties["Kategorie"] === category) {
-        layer.addTo(map);
-      }
-    });
-  }
+  } 
 
   /* else {
         map.removeLayer(cluster_Projekt_punkt);
