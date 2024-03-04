@@ -282,10 +282,9 @@
       }
       var middleMarkersGroup = L.layerGroup();
 
-      function createMiddleMarkers() {
-        json_Projekt_linie.features.forEach((feature) => {
+      function createMiddleMarkers(layer) {
+        layer.features.forEach((feature) => {
           const geometry = feature.geometry;
-
           if (geometry.type === "MultiLineString") {
             const lines = geometry.coordinates; // Get all the lines
             const totalPoints = lines.reduce(
@@ -310,12 +309,12 @@
                     className: "red-marker",
                     iconAnchor: [12, 35],
                     html: '<svg xmlns="http://www.w3.org/2000/svg" width="24" height="41" viewBox="0 0 18 55"> \
-                              <path fill="#ffffff" stroke="#ff0000" stroke-width="2" d="M12 0C5.375 0 0 5.373 0 12c0 11.214 12 29 12 29s12-17.786 12-29c0-6.627-5.373-12-12-12zm0 17.5c-2.481 0-4.5-2.019-4.5-4.5s2.019-4.5 4.5-4.5 4.5 2.019 4.5 4.5-2.019 4.5-4.5 4.5z"/>\
-                              </svg>',
+                        <path fill="#ffffff" stroke="#ff0000" stroke-width="2" d="M12 0C5.375 0 0 5.373 0 12c0 11.214 12 29 12 29s12-17.786 12-29c0-6.627-5.373-12-12-12zm0 17.5c-2.481 0-4.5-2.019-4.5-4.5s2.019-4.5 4.5-4.5 4.5 2.019 4.5 4.5-2.019 4.5-4.5 4.5z"/>\
+                        </svg>',
                   });
 
                   const marker = L.marker(newLatLng, {
-                    icon: redMarkerIcon,
+                      icon: redMarkerIcon,
                   }).addTo(map);
                   pop_Projekt_aktuell_linie_3(feature, marker);
                   middleMarkersGroup.addLayer(marker);
@@ -324,19 +323,18 @@
                 count++;
               }
             }
-
             console.error(
               "Could not find middle point for feature:",
               feature.properties.id
             );
-          } else {
-            console.error("Unsupported geometry type:", geometry.type);
-          }
-        });
-      }
+        } else {
+          console.error("Unsupported geometry type:", geometry.type);
+        }
+  });
+}
 
       // Call createMiddleMarkers function
-      createMiddleMarkers();
+      createMiddleMarkers(json_Projekt_linie);
 
       function removeMiddleMarkers() {
     // Remove all markers from the middleMarkersGroup
@@ -467,18 +465,19 @@ function filterFeaturesByCategory(category) {
     console.log("Filtering features by category:", category);
 
     map.eachLayer(function(layer) {
-        if (layer === layer_OpenRailwayMap_1 && layer === layer_OpenStreetMap_0 && layer === layer_vg2500_bld_2 ) {
+        if (layer === layer_OpenRailwayMap_1 && layer === layer_OpenStreetMap_0 && layer === layer_vg2500_bld_2) {
             map.removeLayer(layer);
         }
     });
-    if (category === "alle") {
+
+     if (category === "alle") {
         map.addLayer(layer_Projekt_linie);
         map.addLayer(cluster_Projekt_punkt);
         createMiddleMarkers();
         map.fitBounds(bounds_group.getBounds());
         return;
     }
-    map.fitBounds(bounds_group.getBounds());
+    map.fitBounds(bounds_group.getBounds()); 
     
     // Filter features from layer_Projekt_linie
     layer_Projekt_linie.eachLayer(function(layer) {
@@ -494,6 +493,7 @@ function filterFeaturesByCategory(category) {
             console.log(layer)
         } else {
             map.removeLayer(layer); // Remove layers that don't match the selected category
+            layer.setStyle({ opacity: 0, fillOpacity: 0 });
         }
     });
 
@@ -508,7 +508,9 @@ function filterFeaturesByCategory(category) {
             };
             layer.setStyle(style);
             map.addLayer(layer);
+            console.log(layer)
         } else {
+            layer.setStyle({ opacity: 0, fillOpacity: 0 });
             map.removeLayer(layer); // Remove layers that don't match the selected category
         }
     });

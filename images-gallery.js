@@ -1,33 +1,33 @@
 const images = [
   {
     src: "images/gi-consult-Gleiserfassung-DSD-Halle-Saale2.jpg",
-    alt: "Image 1",
+    alt: "Streckennetz",
     overlay: "Bestandserfassung für die Digitale Schiene - ein Pilotprojekt",
   },
   {
     src: "images/21G0957100.jpg",
-    alt: "Image 2",
+    alt: "Streckennetz",
     overlay: "Reaktivierung der Siemensbahn in Berlin",
   },
   {
     src: "images/25G0381100.jpg",
-    alt: "Image 3",
+    alt: "Streckennetz",
     overlay:
       "Neubaustrecke (NBS) Frankfurt Mannheim, Abschnitt Mannheim Lorsch",
   },
   {
     src: "images/30G0163100.jpg",
-    alt: "Image 4",
+    alt: "",
     overlay: "Strecke 6107/6399 ABS Hannover-Berlin",
   },
   {
     src: "images/Weiseritzlok-im-Bahnhof.jpg",
-    alt: "Image 5",
+    alt: "Streckennetz",
     overlay: "Wiedererichtung Weißeritztalbahn",
   },
   {
     src: "images/gi-consult_WestspangePA3-8-scaled.jpg",
-    alt: "Image 6",
+    alt: "Streckennetz",
     overlay:
       "Ausbau Knoten Köln-Westspange PA3&Eifelstrecke (Hürth-Karlscheuren-Euskirchen)",
   },
@@ -56,7 +56,6 @@ document.addEventListener("DOMContentLoaded", function () {
     imageGallery.querySelector(".image-grid").appendChild(imageItem);
   });
 
-  // Add event listeners to image items
   // Add event listeners to image items
   document.querySelectorAll(".image-item").forEach(function (item) {
     item.addEventListener("click", function () {
@@ -111,7 +110,6 @@ function findFeatureById(id) {
       return feature.feature;
     }
   }
-
   console.log("not found");
   return null;
 }
@@ -125,16 +123,42 @@ function imageNameToProjektnr(imageName) {
 }
 
 function hideOtherFeatures(feature) {
-  var featureToShow = feature;
-  // Assuming layer_Projekt_linie is your GeoJSON layer
-  layer_Projekt_linie.eachLayer(function (layer) {
-    // Check if the layer is not equal to the featureToShow
-    if (layer.feature !== featureToShow) {
-      // Hide the layer
-      layer.setStyle({ opacity: 0, fillOpacity: 0 });
-    } else {
+  const allFeatures = [
+    ...layer_Projekt_linie.getLayers(),
+    ...layer_Projekt_punkt.getLayers(),
+  ];
+
+  allFeatures.forEach(function (layer) {
+    if (feature && layer.feature === feature) {
+      console.log(feature);
+      console.log(layer.feature);
       // Show the desired feature
       layer.setStyle({ color: "red", opacity: 1, fillOpacity: 1 });
+    } else {
+      // Hide other features
+      layer.setStyle({ opacity: 0, fillOpacity: 0 });
+    }
+  });
+}
+
+document.querySelectorAll(".category-button").forEach(function (button) {
+  button.addEventListener("click", function () {
+    const category = button.dataset.category;
+    filterImagesByCategory(category);
+  });
+});
+
+function filterImagesByCategory(category) {
+  console.log("Filtering images by category:", category);
+
+  const imageItems = document.querySelectorAll(".image-item");
+
+  imageItems.forEach(function (item) {
+    const imgAlt = item.querySelector("img").alt;
+    if (category === "alle" || imgAlt === category) {
+      item.style.display = "block";
+    } else {
+      item.style.display = "none";
     }
   });
 }
