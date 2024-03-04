@@ -1,29 +1,45 @@
 
 function removeMiddleMarkers() {
-    // Remove all markers from the middleMarkersGroup
-        middleMarkersGroup.eachLayer(function(layer) {
-        map.removeLayer(layer);
-      });
-    }
-    
+// Remove all markers from the middleMarkersGroup
+    middleMarkersGroup.eachLayer(function(layer) {
+    map.removeLayer(layer);
+    });
+}
+
 function filterFeaturesByCategory(category) {
     console.log("Filtering features by category:", category);
 
     map.eachLayer(function(layer) {
-        if (layer === layer_OpenRailwayMap_1 && layer === layer_OpenStreetMap_0 && layer === layer_vg2500_bld_2) {
-            map.removeLayer(layer);
+
+        if(!(layer instanceof L.TileLayer ) && layer.options.pane !== "pane_vg2500_bld_2") {
+             map.removeLayer(layer);
         }
     });
-
+/*     map.fitBounds(bounds_group.getBounds());  */
      if (category === "alle") {
         map.addLayer(layer_Projekt_linie);
         map.addLayer(cluster_Projekt_punkt);
-        createMiddleMarkers();
-        map.fitBounds(bounds_group.getBounds());
-        return;
+        createMiddleMarkers(json_Projekt_linie);
+    } else if (category === "Streckennetz") {
+        layer_Projekt_linie.eachLayer(function(layer) {
+            if (layer.feature && layer.feature.properties["Kategorie"] === category) {
+                layer.addTo(map);
+                createSingleMiddleMarker(layer.feature);
+            } 
+        });
+
     }
-    map.fitBounds(bounds_group.getBounds()); 
     
+    
+    
+    /* else {
+        map.removeLayer(cluster_Projekt_punkt);
+        map.removeLayer(layer_Projekt_punkt);
+        map.removeLayer(layer_Projekt_linie);
+        removeMiddleMarkers();
+    } */
+
+/*     
     // Filter features from layer_Projekt_linie
     layer_Projekt_linie.eachLayer(function(layer) {
         const featureCategory = layer.feature.properties["Kategorie"];
@@ -35,7 +51,6 @@ function filterFeaturesByCategory(category) {
             };
             layer.setStyle(style);
             map.addLayer(layer);
-            console.log(layer)
         } else {
             map.removeLayer(layer); // Remove layers that don't match the selected category
             layer.setStyle({ opacity: 0, fillOpacity: 0 });
@@ -53,19 +68,12 @@ function filterFeaturesByCategory(category) {
             };
             layer.setStyle(style);
             map.addLayer(layer);
-            console.log(layer)
         } else {
             layer.setStyle({ opacity: 0, fillOpacity: 0 });
             map.removeLayer(layer); // Remove layers that don't match the selected category
         }
-    });
+    }); */
 
-    if (category !== "alle") {
-        map.removeLayer(cluster_Projekt_punkt);
-        map.removeLayer(layer_Projekt_punkt);
-        map.removeLayer(layer_Projekt_linie);
-        removeMiddleMarkers();
-    }
 }
 
    
